@@ -1,5 +1,3 @@
-const { ipcRenderer } = require('electron');
-
 const gridSize = 50;
 const grid = [];
 let isRunning = false;
@@ -60,7 +58,7 @@ document.getElementById('start-button').addEventListener('click', () => {
 
     isRunning = true;
 
-    ipcRenderer.send('start-simulation', {
+    window.api.startSimulation({
         gridSize,
         humidity,
         density,
@@ -71,10 +69,10 @@ document.getElementById('start-button').addEventListener('click', () => {
 document.getElementById('stop-button').addEventListener('click', () => {
     isRunning = false;
     console.log("Simulation arrêtée par l'utilisateur");
-    ipcRenderer.send('stop-simulation');
+    window.api.stopSimulation();
 });
 
-ipcRenderer.on('simulation-data', (event, states) => {
+window.api.onSimulationData((states) => {
     console.log('Résultats de la simulation reçus :', states);
 
     initializeGrid();

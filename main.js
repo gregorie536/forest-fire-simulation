@@ -7,8 +7,9 @@ app.on('ready', () => {
         width: 800,
         height: 600,
         webPreferences: {
-            nodeIntegration: true,
-            contextIsolation: false,
+            preload: `${__dirname}/preload.js`,
+            contextIsolation: true,
+            nodeIntegration: false,
         },
     });
     mainWindow.loadFile('index.html');
