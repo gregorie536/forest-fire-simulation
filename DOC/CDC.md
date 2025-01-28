@@ -74,3 +74,7 @@ L'application a pour vocation d'illustrer le fonctionnement des communications I
 
 ```plaintext
 [User] --> [Renderer Process] <--> [Main Process]
+
+## 5. Lien vers les releases
+Les livrables et les versions stables du projet sont disponibles ici :
+[Releases du projet](https://github.com/gregorie536/forest-fire-simulation.git)

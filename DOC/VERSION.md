@@ -44,3 +44,6 @@ git tag -d v1.0.0
    ```bash
 git push origin --delete v1.0.0
 ```
+
+## Ressources supplémentaires
+- [Documentation GitHub : Releases et Tags](https://docs.github.com/en/repositories/releasing-projects-on-github)
