@@ -1,5 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 let mainWindow;
+let simulationRunning = false;
 
 app.on('ready', () => {
     mainWindow = new BrowserWindow({
@@ -13,17 +14,23 @@ app.on('ready', () => {
     mainWindow.loadFile('index.html');
 });
 
-ipcMain.on('start-simulation', (event, params) => {
+ipcMain.on('start-simulation', async (event, params) => {
     console.log('Paramètres reçus pour la simulation :', params);
-    const simulationResult = runSimulation(params);
+    simulationRunning = true;
+
+    const simulationResult = await runSimulation(params);
     event.reply('simulation-data', simulationResult);
 });
 
-function runSimulation({ gridSize, humidity, density, iterations }) {
-    const grid = initializeGrid(gridSize, density);
-    console.log('Grille initiale :', grid);
+ipcMain.on('stop-simulation', () => {
+    console.log('Simulation arrêtée');
+    simulationRunning = false;
+});
 
+async function runSimulation({ gridSize, humidity, density, iterations }) {
+    const grid = initializeGrid(gridSize, density);
     const burningCells = [];
+
     while (burningCells.length < 2) {
         const x = Math.floor(Math.random() * gridSize);
         const y = Math.floor(Math.random() * gridSize);
@@ -35,6 +42,11 @@ function runSimulation({ gridSize, humidity, density, iterations }) {
 
     const states = [];
     for (let step = 0; step < iterations; step++) {
+        if (!simulationRunning) {
+            console.log(`Simulation interrompue à l'étape : ${step}`);
+            break;
+        }
+
         const newBurning = [];
         for (const [x, y] of burningCells) {
             grid[x][y] = 3;
@@ -59,10 +71,14 @@ function runSimulation({ gridSize, humidity, density, iterations }) {
                 }
             }
         }
+
         burningCells.length = 0;
         burningCells.push(...newBurning);
         states.push(JSON.parse(JSON.stringify(grid)));
+
         if (burningCells.length === 0) break;
+
+        await new Promise(resolve => setTimeout(resolve, 100));
     }
 
     console.log('États générés :', states);

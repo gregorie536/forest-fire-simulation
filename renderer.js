@@ -12,6 +12,9 @@ const states = {
     BURNED: 3,
 };
 
+document.getElementById('start-button').classList.add('running');
+document.getElementById('stop-button').classList.remove('stopped');
+
 function initializeGrid() {
     const gridElement = document.getElementById('grid');
     gridElement.innerHTML = "";
@@ -65,20 +68,27 @@ document.getElementById('start-button').addEventListener('click', () => {
     });
 });
 
-
 document.getElementById('stop-button').addEventListener('click', () => {
     isRunning = false;
+    console.log("Simulation arrêtée par l'utilisateur");
+    ipcRenderer.send('stop-simulation');
 });
 
 ipcRenderer.on('simulation-data', (event, states) => {
     console.log('Résultats de la simulation reçus :', states);
 
     initializeGrid();
-    for (const [index, state] of states.entries()) {
-        setTimeout(() => {
+
+    (async () => {
+        for (const [index, state] of states.entries()) {
+            if (!isRunning) {
+                console.log("Simulation arrêtée par l'utilisateur");
+                break;
+            }
             updateGrid(state);
-        }, 500 * index);
-    }
+            await new Promise(resolve => setTimeout(resolve, 500));
+        }
+    })();
 });
 
 initializeGrid();
